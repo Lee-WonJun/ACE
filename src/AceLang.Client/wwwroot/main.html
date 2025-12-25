@@ -1,0 +1,64 @@
+<div class="editor-container">
+  ${Body}
+  <template id="Home">
+    <div class="editor-layout">
+      <div class="editor-header">
+        <div class="header-left">
+          <h1 class="title is-4 mb-0">Ace Playground</h1>
+        </div>
+        <div class="header-center">
+          <div class="select">
+            <select onchange="${LoadExample}">
+              <option value="" disabled selected>Load Example...</option>
+              <option value="0">Basic IO</option>
+              <option value="1">Handler Mock</option>
+              <option value="2">Upstream v</option>
+            </select>
+          </div>
+        </div>
+        <div class="header-right">
+          <button onclick="${RunCode}" class="button is-success is-medium">
+            <span>Run</span>
+          </button>
+          <button onclick="${ClearOutput}" class="button is-light is-medium">Clear</button>
+        </div>
+      </div>
+      <div class="editor-panels">
+        <div class="editor-panel">
+          <div class="panel-header">
+            <span class="panel-title">Code Editor</span>
+            <span class="panel-hint">Ace Lang</span>
+          </div>
+          <div class="panel-content">
+            <textarea class="textarea is-family-monospace" placeholder="Enter Ace code here..." bind="${Code}"></textarea>
+          </div>
+        </div>
+        <div class="editor-panel">
+          <div class="panel-header">
+            <span class="panel-title">Output</span>
+          </div>
+          <div class="panel-content output-panel">${Output}</div>
+        </div>
+      </div>
+      <div class="editor-footer">
+        <details class="example-section">
+          <summary>Docs</summary>
+          <div class="doc-content">
+            <h3 class="doc-title">══ Ace Language Documentation ══</h3>
+            <div class="doc-section">■ Effects</div>
+            <div class="doc-item"><strong>defn `Effect` (args) : Type</strong> → Declare explicit effect</div>
+            <div class="doc-item"><strong>defn name (args) : Type { body }</strong> → Implicit effect with default impl</div>
+            <div class="doc-section">■ Handlers</div>
+            <div class="doc-item"><strong>handle { ... } with (effect args) -> k { ... }</strong> → Handle effects</div>
+            <div class="doc-item"><strong>continue k (value)</strong> → Resume with value</div>
+            <div class="doc-item"><strong>continue k v</strong> → Resume with upstream result</div>
+            <div class="doc-section">■ Expressions</div>
+            <div class="doc-item"><strong>let x = expr</strong> → Variable binding</div>
+            <div class="doc-item"><strong>if cond then e1 else e2</strong> → Conditional</div>
+            <div class="doc-item"><strong>{ e1 e2 ... }</strong> → Block expression</div>
+          </div>
+        </details>
+      </div>
+    </div>
+  </template>
+</div>

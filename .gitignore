@@ -1,0 +1,41 @@
+# Build results
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+
+# Visual Studio
+.vs/
+*.sln.iml
+*.user
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+*.sln.iml
+
+# Serena
+.serena/
+
+# Local environment
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node (if used for web assets)
+node_modules/
+npm-debug.log
+
+# Misc
+*.log
+*.swp
+*.swo
+*~
+
+# AGENTS.md
+AGENTS.md
