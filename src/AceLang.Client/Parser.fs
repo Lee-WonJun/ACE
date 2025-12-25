@@ -3,7 +3,8 @@ module AceLang.Client.Parser
 open FParsec
 open AceLang.Client.AST
 
-let ws = spaces
+let comment = pstring "//" >>. skipRestOfLine true
+let ws = spaces >>. skipMany (comment >>. spaces)
 let keyword s = pstring s .>> ws
 
 let isIdentChar c = System.Char.IsLetterOrDigit c || c = '_' || c = '.'
