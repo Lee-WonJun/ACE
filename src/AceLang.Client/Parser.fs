@@ -52,17 +52,23 @@ let letExpr =
     |>> fun (n, v) -> ELet(n, v, ELiteral LUnit)
 
 let continueExpr =
-    keyword "continue" >>. name .>>. 
-    ((keyword "v" >>% CA_Upstream) <|> (between (keyword "(") (keyword ")") expr |>> CA_Val) <|> (simpleExpr |>> CA_Val))
-    |>> fun (k, arg) -> EContinue(k, arg)
+    let continueArg =
+        (keyword "v" >>% CA_Upstream)
+        <|> (between (keyword "(") (keyword ")") expr |>> CA_Val)
+        <|> (simpleExpr |>> CA_Val)
+    keyword "continue" >>. name .>>. opt continueArg
+    |>> fun (k, argOpt) ->
+        let arg = defaultArg argOpt (CA_Val (ELiteral LUnit))
+        EContinue(k, arg)
 
 let ifExpr =
     keyword "if" >>. expr .>> keyword "then" .>>. expr .>> keyword "else" .>>. expr
     |>> fun ((c, t), e) -> EIf(c, t, e)
 
 let handlerClause =
-    keyword "(" >>. name .>>. many name .>> keyword ")" .>> keyword "->" .>>. name .>> keyword "{" .>>. many expr .>> keyword "}"
-    |>> fun (((eff, args), kName), bodyExprs) -> 
+    keyword "(" >>. name .>>. many name .>> keyword ")" .>>. opt (keyword "->" >>. name) .>> keyword "{" .>>. many expr .>> keyword "}"
+    |>> fun (((eff, args), kOpt), bodyExprs) ->
+        let kName = defaultArg kOpt "k"
         let body = match bodyExprs with [e] -> e | es -> EBlock es
         { EffectName = eff; ArgNames = args; KName = kName; Body = body }
 
@@ -85,10 +91,11 @@ do exprRef.Value <-
     <|> simpleExpr
 
 let typeAnnotation = keyword ":" >>. name |>> ignore
+let effectAnnotation = keyword "with" >>. sepBy1 name (keyword ",") |>> ignore
 
 let decl =
-    keyword "defn" >>. name .>> keyword "(" .>>. sepBy name (keyword ",") .>> keyword ")" .>>. opt typeAnnotation .>>. opt blockExpr
-    |>> fun (((n, ps), _), body) -> { Name = n; Params = ps; Body = body }
+    keyword "defn" >>. name .>> keyword "(" .>>. sepBy name (keyword ",") .>> keyword ")" .>>. opt typeAnnotation .>>. opt effectAnnotation .>>. opt blockExpr
+    |>> fun ((((n, ps), _), _), body) -> { Name = n; Params = ps; Body = body }
 
 let program =
     ws >>. many decl .>> eof

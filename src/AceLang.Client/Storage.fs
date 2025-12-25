@@ -1,14 +1,13 @@
 module AceLang.Client.Storage
 
-let example1 = """defn IO.print (msg) : Unit
-
+let example1 = """
 defn main() {
     IO.print("Hello Ace!")
     IO.print("Effect System working.")
 }
 """
 
-let example2 = """defn IO.print (msg) : Unit
+let example2 = """
 defn get_data() : Number { 100 }
 
 defn main() {
@@ -21,7 +20,7 @@ defn main() {
 }
 """
 
-let example3 = """defn IO.print (msg) : Unit
+let example3 = """
 defn value() : Number { 10 }
 
 defn main() {
@@ -38,8 +37,36 @@ defn main() {
 }
 """
 
+let example4 = """
+defn fetch_base() : Number { 7 }
+defn adjust(x) : Number { x + 2 }
+defn compute() : Number {
+    let a = fetch_base()
+    let b = adjust(a)
+    b * 3
+}
+defn pipeline() : Number {
+    let v1 = compute()
+    IO.print("Pipeline: " + v1)
+    v1
+}
+
+defn main() {
+    handle {
+        handle {
+            pipeline()
+        } with (fetch_base) {
+            continue k (v + 5)
+        }
+    } with (fetch_base) {
+        continue k (v + 20)
+    }
+}
+"""
+
 let examples = [
     ("Basic IO", example1)
     ("Handler Mock", example2)
     ("Upstream v", example3)
+    ("Deep Stack", example4)
 ]
