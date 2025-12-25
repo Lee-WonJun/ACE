@@ -4,6 +4,7 @@ open Xunit
 open AceLang.Client.AST
 open AceLang.Client.Interpreter
 open AceLang.Client.Parser
+open AceLang.Client.Storage
 
 let rec runTestLoop (decls: Map<string, Decl>) (result: EvalResult) : Value =
     match result with
@@ -75,6 +76,15 @@ defn main() {
 }
 """
     assertInt 30 (runCode code)
+
+[<Fact>]
+let ``All shipped examples parse and run`` () =
+    for (title, code) in examples do
+        try
+            let _ = runCode code
+            ()
+        with ex ->
+            failwithf "Example failed: %s (%s)" title ex.Message
 
 [<Fact>]
 let ``Example2 - Handler Mock with IO`` () =

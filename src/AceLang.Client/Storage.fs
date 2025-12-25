@@ -114,8 +114,30 @@ defn main() {
 }
 """
 
+let example7 = """
+defn `Log`(level, msg) : Unit
+defn log(level, msg) : Unit {
+    IO.print(level + "[" + msg + "]")
+}
+defn main() {
+    handle {
+        `Log`("WARN", "Disk space low")
+        `Log`("INFO", "Cleanup started")
+        log("INFO", "Cleanup started")
+    } with (`Log` level msg) -> k {
+        IO.print(level + ": " + msg)
+        continue k
+    } (log level msg) -> k {
+        IO.print("[" + level + "] " + msg)
+        continue k
+    }
+}
+
+"""
+
 let examples = [
     ("Basic IO", example1)
+    ("Effect Handler", example7)
     ("Handler Mock", example2)
     ("Upstream v", example3)
     ("Deep Stack", example4)
