@@ -32,7 +32,7 @@
             <span class="panel-hint">Ace Lang</span>
           </div>
           <div class="panel-content">
-            <textarea class="textarea is-family-monospace" placeholder="Enter Ace code here..." bind="${Code}"></textarea>
+            <textarea class="textarea is-family-monospace" placeholder="Enter Ace code here..." bind="${Code}" onkeydown="return aceToggleComment(event)"></textarea>
           </div>
         </div>
         <div class="editor-panel">
