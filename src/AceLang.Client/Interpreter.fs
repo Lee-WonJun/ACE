@@ -19,7 +19,13 @@ and EvalResult =
 
 type Env = Map<string, Value>
 
-type HandlerFrame = { Clauses: HandlerClause list; Env: Env }
+type HandlerFrame =
+    | UserFrame of HandlerClause list * Env
+    | RootFrame of Map<string, Decl>
+
+type HandlerMatch =
+    | UserMatch of HandlerClause * Env * HandlerFrame list
+    | RootMatch of Decl
 
 let rec valueToString = function
     | VUnit -> "unit"
@@ -60,10 +66,14 @@ let bindParams (ps: string list) (args: Value list) =
 let rec tryFindHandler effName handlers =
     match handlers with
     | [] -> None
-    | frame :: rest ->
-        match frame.Clauses |> List.tryFind (fun c -> c.EffectName = effName) with
-        | Some clause -> Some(frame, clause, rest)
+    | UserFrame (clauses, env) :: rest ->
+        match clauses |> List.tryFind (fun c -> c.EffectName = effName) with
+        | Some clause -> Some (UserMatch (clause, env, rest))
         | None -> tryFindHandler effName rest
+    | RootFrame decls :: rest ->
+        match Map.tryFind effName decls with
+        | Some decl when decl.Body.IsSome -> Some (RootMatch decl)
+        | _ -> tryFindHandler effName rest
 
 let rec evalWithHandlers (decls: Map<string, Decl>) (env: Env) (handlers: HandlerFrame list) (expr: Expr) (k: Value -> EvalResult) : EvalResult =
     match expr with
@@ -124,7 +134,7 @@ let rec evalWithHandlers (decls: Map<string, Decl>) (env: Env) (handlers: Handle
             | _ -> Error "Condition must be boolean")
 
     | EHandle (body, clauses) ->
-        let frame = { Clauses = clauses; Env = env }
+        let frame = UserFrame (clauses, env)
         evalWithHandlers decls env (frame :: handlers) body k
 
     | EContinue (kName, arg) ->
@@ -140,25 +150,23 @@ let rec evalWithHandlers (decls: Map<string, Decl>) (env: Env) (handlers: Handle
 
 and resolveEffect (decls: Map<string, Decl>) (env: Env) (handlers: HandlerFrame list) (eff: string) (args: Value list) (k: Value -> EvalResult) : EvalResult =
     match tryFindHandler eff handlers with
-    | Some (frame, clause, outerHandlers) ->
+    | Some (UserMatch (clause, frameEnv, outerHandlers)) ->
         let upstream =
             { Cached = None
               Eval = fun () -> resolveEffect decls env outerHandlers eff args (fun v -> Done v) }
         let handlerEnv =
             List.zip clause.ArgNames args
-            |> List.fold (fun e (n, v) -> Map.add n v e) frame.Env
+            |> List.fold (fun e (n, v) -> Map.add n v e) frameEnv
             |> Map.add clause.KName (VContinuation (fun v -> k v))
             |> Map.add "v" (VLazy upstream)
         evalWithHandlers decls handlerEnv outerHandlers clause.Body (fun v -> Done v)
-    | None ->
-        match Map.tryFind eff decls with
-        | Some { Body = Some body; Params = ps } ->
-            let implEnv = bindParams ps args
-            evalWithHandlers decls implEnv handlers body k
-        | _ -> Request (eff, args, k)
+    | Some (RootMatch decl) ->
+        let implEnv = bindParams decl.Params args
+        evalWithHandlers decls implEnv handlers decl.Body.Value k
+    | None -> Request (eff, args, k)
 
 let eval (decls: Map<string, Decl>) (env: Env) (expr: Expr) : EvalResult =
-    evalWithHandlers decls env [] expr (fun v -> Done v)
+    evalWithHandlers decls env [RootFrame decls] expr (fun v -> Done v)
 
 let runProgram (prog: Program) (handleIO: string -> Value list -> Value) : EvalResult =
     let rec loop result =

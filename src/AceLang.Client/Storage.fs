@@ -64,9 +64,27 @@ defn main() {
 }
 """
 
+let example5 = """
+defn get_data() : Number { 10 }
+defn calc() : Number { get_data() * 2 }
+defn wrapped_calc() : Number {
+    handle {
+        calc()
+    } with (get_data) {
+        continue k (v + 1)
+    }
+}
+
+defn main() {
+    let result = wrapped_calc()
+    IO.print("Wrapped result: " + result)
+}
+"""
+
 let examples = [
     ("Basic IO", example1)
     ("Handler Mock", example2)
     ("Upstream v", example3)
     ("Deep Stack", example4)
+    ("Handle In Defn", example5)
 ]
