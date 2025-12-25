@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "AceLang.Client",
   "resources": {
-    "hash": "sha256-lKFln+GL0ozVzz8K2xHcnivLLFNICTl1m3zYzOoRLNQ=",
+    "hash": "sha256-C2OdbTvxo6yaOtPT4aJWkTDzOBqawoyDGi5fs7WMu/A=",
     "jsModuleNative": {
       "dotnet.native.js": "sha256-vtotCeXt2UD6oc459laJT32vBgigZ+eLoUmdeFkvYDk="
     },
@@ -63,7 +63,7 @@
       "System.Threading.Tasks.Parallel.wasm": "sha256-mcxPD71NtSJ2YYJooEtqZ5ALEkOoLl3t/289UPbeUhI=",
       "netstandard.wasm": "sha256-J610rsfes6lU/PLyzAumo4/d8o1ez4JDeVmXF/6u2uQ=",
       "System.Private.CoreLib.wasm": "sha256-dRmdkNwhHPKXfYWefxoSevOapYbWxyZMBZrncYxsorI=",
-      "AceLang.Client.wasm": "sha256-ENwpvPuDnX5vSo9tcXQb+2dnUOxUP85STN4RkOP7av8="
+      "AceLang.Client.wasm": "sha256-5JwK80YgUEMT5RTZ53oNPGefAIt0r5G9TRFI2OW4R1Y="
     }
   },
   "cacheBootResources": true,
